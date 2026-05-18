@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monitor Reputacional</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<style>
+:root{--bg:#0E0F11;--bg2:#161719;--bg3:#1E2024;--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);--text:#F0F0EE;--text2:#888884;--text3:#555552;--green:#1FCB8A;--gd:rgba(31,203,138,0.13);--red:#FF5B5B;--rd:rgba(255,91,91,0.13);--amber:#F5A623;--ad:rgba(245,166,35,0.13);--blue:#5B9BFF;--bd:rgba(91,155,255,0.13);--pink:#FF6EB0;--pd:rgba(255,110,176,0.13);--purple:#9B7FFF;--pud:rgba(155,127,255,0.13);}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;}
+.topbar{display:flex;align-items:center;gap:6px;padding:0 24px;height:54px;border-bottom:1px solid var(--border);background:var(--bg);position:sticky;top:0;z-index:100;flex-wrap:wrap;}
+.logo{display:flex;align-items:center;gap:8px;font-weight:600;font-size:15px;margin-right:8px;}
+.ldot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.nav{display:flex;gap:2px;}
+.nb{padding:6px 14px;border-radius:8px;border:none;background:transparent;color:var(--text2);font-size:13px;cursor:pointer;transition:all .15s;font-family:inherit;}
+.nb:hover{color:var(--text);background:var(--bg3);}
+.nb.active{background:var(--bg3);color:var(--text);border:1px solid var(--border2);}
+.pane{display:none;padding:24px;max-width:1100px;margin:0 auto;width:100%;}
+.pane.on{display:block;}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+.metric{background:var(--bg2);border-radius:10px;padding:16px 18px;border:1px solid var(--border);}
+.ml{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;font-weight:500;margin-bottom:7px;}
+.mv{font-size:26px;font-weight:600;color:var(--text);}
+.ms{font-size:12px;margin-top:4px;color:var(--text3);}
+.ms.up{color:var(--green);}
+.ms.dn{color:var(--red);}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:13px;padding:18px;margin-bottom:14px;}
+.ct{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:14px;}
+.crow{display:flex;align-items:center;gap:11px;padding:9px 0;border-bottom:1px solid var(--border);}
+.crow:last-child{border-bottom:none;}
+.av{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;}
+.badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:500;}
+.bp{background:#EAF3DE;color:#3B6D11;}.bn{background:#FCEBEB;color:#A32D2D;}.bw{background:#FAEEDA;color:#854F0B;}.bu{background:var(--bg3);color:var(--text2);}
+.pt{display:inline-flex;align-items:center;font-size:11px;padding:3px 9px;border-radius:20px;font-weight:500;}
+.px{background:#E6F1FB;color:#185FA5;}.ptt{background:#FBEAF0;color:#993556;}.pfb{background:#EEEDFE;color:#534AB7;}.pnews{background:#FAEEDA;color:#854F0B;}
+.ai{display:flex;align-items:flex-start;gap:10px;padding:11px 13px;border-radius:9px;margin-bottom:8px;border:1px solid transparent;}
+.ai:last-child{margin-bottom:0;}
+.a-h{background:var(--rd);border-color:rgba(255,91,91,.2);}
+.a-m{background:var(--ad);border-color:rgba(245,166,35,.2);}
+.a-l{background:var(--gd);border-color:rgba(31,203,138,.2);}
+.at{font-size:13px;color:var(--text);line-height:1.4;}
+.am{font-size:11px;color:var(--text3);margin-top:3px;display:flex;align-items:center;gap:5px;}
+.trow{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--border);}
+.trow:last-child{border-bottom:none;}
+.lbl{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;margin-top:14px;display:block;}
+.lbl:first-child{margin-top:0;}
+select,input,textarea{width:100%;padding:9px 12px;font-size:13px;border:1px solid var(--border2);border-radius:9px;background:var(--bg3);color:var(--text);font-family:inherit;outline:none;margin-bottom:0;}
+select:focus,input:focus,textarea:focus{border-color:var(--green);}
+input[type=password]{letter-spacing:.1em;}
+input::placeholder,textarea::placeholder{color:var(--text3);}
+textarea{resize:vertical;min-height:72px;line-height:1.6;}
+.btn{padding:8px 17px;border-radius:9px;border:1px solid var(--border2);background:var(--bg3);color:var(--text2);font-size:13px;cursor:pointer;font-weight:500;transition:all .15s;font-family:inherit;display:inline-flex;align-items:center;gap:6px;}
+.btn:hover{color:var(--text);}
+.btnp{background:var(--green);color:#000;border-color:var(--green);font-weight:600;}
+.btnp:hover{opacity:.85;}.btnp:disabled{opacity:.4;cursor:not-allowed;}
+.btnd{background:var(--rd);color:var(--red);border-color:rgba(255,91,91,.25);}
+.btn-row{display:flex;gap:8px;margin-top:13px;flex-wrap:wrap;}
+.sbox{background:var(--bg2);border:1px solid var(--border);border-radius:13px;padding:20px;margin-bottom:13px;}
+.pills{display:flex;gap:7px;flex-wrap:wrap;margin-top:7px;}
+.pill{padding:6px 15px;border-radius:20px;font-size:12px;font-weight:500;border:1px solid var(--border2);cursor:pointer;background:var(--bg3);color:var(--text2);transition:all .15s;user-select:none;}
+.pill.sx{background:var(--bd);color:var(--blue);border-color:rgba(91,155,255,.3);}
+.pill.stt{background:var(--pd);color:var(--pink);border-color:rgba(255,110,176,.3);}
+.pill.sfb{background:var(--pud);color:var(--purple);border-color:rgba(155,127,255,.3);}
+.pill.sall{color:var(--text);border-color:var(--border2);}
+.loading{display:none;align-items:center;gap:9px;font-size:13px;color:var(--text3);padding:12px 0;}
+.spinner{width:14px;height:14px;border:2px solid var(--border2);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.post-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:9px;transition:border-color .15s;}
+.post-card:hover{border-color:var(--border2);}
+.post-body{font-size:13px;color:var(--text);line-height:1.65;margin:9px 0 11px;}
+.post-body a{color:var(--blue);text-decoration:none;font-size:12px;}
+.post-body a:hover{text-decoration:underline;}
+.pan{background:var(--bg3);border-radius:8px;padding:11px 13px;margin-top:9px;display:none;}
+.pan.show{display:block;}
+.pan-row{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:6px;}
+.pan-text{font-size:12px;color:var(--text2);line-height:1.55;}
+.pan-act{font-size:12px;color:var(--text3);margin-top:6px;padding-top:6px;border-top:1px solid var(--border);}
+.btn-ap{padding:5px 12px;font-size:12px;border-radius:7px;border:1px solid var(--border2);background:transparent;color:var(--text3);cursor:pointer;font-family:inherit;transition:all .15s;}
+.btn-ap:hover{color:var(--green);border-color:var(--green);}
+.btn-ap.done{color:var(--green);border-color:var(--green);}
+.kbanner{display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:9px;font-size:12px;margin-bottom:14px;}
+.kb-ok{background:var(--gd);color:#3B6D11;border:1px solid rgba(31,203,138,.25);}
+.kb-warn{background:var(--ad);color:#854F0B;border:1px solid rgba(245,166,35,.25);}
+.empty{text-align:center;padding:36px 16px;color:var(--text3);font-size:14px;line-height:1.7;}
+.cand-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:11px;}
+.cand-card{background:var(--bg2);border:1px solid var(--border);border-radius:13px;padding:15px 17px;display:flex;align-items:center;gap:12px;transition:border-color .15s;}
+.cand-card:hover{border-color:var(--border2);}
+.h-item{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:9px;}
+.pane-title{font-size:19px;font-weight:600;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+.filters{display:flex;gap:8px;flex-wrap:wrap;}
+.filters select{width:auto;font-size:12px;padding:6px 10px;}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:200;display:none;align-items:center;justify-content:center;backdrop-filter:blur(3px);}
+.overlay.show{display:flex;}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:15px;padding:26px;width:420px;max-width:95vw;}
+.mh{font-size:16px;font-weight:600;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;}
+.mx{background:none;border:none;color:var(--text3);cursor:pointer;font-size:20px;line-height:1;padding:0;}
+.mx:hover{color:var(--text);}
+.color-opts{display:flex;gap:8px;flex-wrap:wrap;margin-top:7px;}
+.color-opt{width:26px;height:26px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all .15s;}
+.color-opt.sel{border-color:#fff;transform:scale(1.15);}
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--bg3);border-radius:3px;}
+@media(max-width:700px){
+  .g4{grid-template-columns:repeat(2,1fr);}
+  .g2{grid-template-columns:1fr;}
+  .cand-grid{grid-template-columns:1fr;}
+  .nb{padding:6px 9px;font-size:12px;}
+  .pane{padding:14px;}
+  .topbar{padding:0 14px;}
+}
+</style>
+</head>
+<body>
+
+<div id="kbanner"></div>
+
+<div class="topbar">
+  <div class="logo"><div class="ldot"></div>Monitor Reputacional</div>
+  <div class="nav">
+    <button class="nb active" onclick="go('dash')">Tablero</button>
+    <button class="nb" onclick="go('buscar')">Buscar</button>
+    <button class="nb" onclick="go('historial')">Historial</button>
+    <button class="nb" onclick="go('cands')">Candidatos</button>
+    <button class="nb" onclick="go('config')"><i class="ti ti-settings"></i></button>
+  </div>
+</div>
+
+<!-- TABLERO -->
+<div id="dash" class="pane on">
+  <div class="g4">
+    <div class="metric"><div class="ml">Publicaciones hoy</div><div class="mv" id="m-pub">1,284</div><div class="ms up" id="m-pub-s">+16% vs ayer</div></div>
+    <div class="metric"><div class="ml">Sentimiento positivo</div><div class="mv" id="m-pos">54%</div><div class="ms up">+3pts</div></div>
+    <div class="metric"><div class="ml">Alertas activas</div><div class="mv" id="m-al" style="color:var(--red)">0</div><div class="ms dn" id="m-al-s">sin alertas</div></div>
+    <div class="metric"><div class="ml">Candidatos monitoreados</div><div class="mv" id="m-c">0</div><div class="ms">2 plataformas</div></div>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="ct">Sentimiento por candidato</div><div id="d-sent"></div></div>
+    <div class="card"><div class="ct">Últimas alertas</div><div id="d-alerts"></div></div>
+  </div>
+  <div class="card"><div class="ct">Tendencias de menciones — 7 días</div><div id="d-trends"></div></div>
+</div>
+
+<!-- BUSCAR -->
+<div id="buscar" class="pane">
+  <div class="pane-title">Buscar publicaciones</div>
+  <div class="sbox">
+    <div class="lbl">Candidato</div>
+    <select id="s-cand"><option value="">— Seleccionar candidato —</option></select>
+    <div class="lbl" style="margin-top:12px">Plataforma</div>
+    <div class="pills">
+      <div class="pill sall" id="pl-all" onclick="sp('todas','all')">Todas</div>
+      <div class="pill" id="pl-x"  onclick="sp('X (Twitter)','x')"><i class="ti ti-brand-x"></i> X (Twitter)</div>
+      <div class="pill" id="pl-tt" onclick="sp('TikTok','tt')"><i class="ti ti-brand-tiktok"></i> TikTok</div>
+      <div class="pill" id="pl-fb" onclick="sp('Facebook','fb')"><i class="ti ti-brand-facebook"></i> Facebook</div>
+    </div>
+    <div class="lbl" style="margin-top:14px">Tipo de búsqueda</div>
+    <select id="s-tipo">
+      <option value="recientes">Publicaciones recientes</option>
+      <option value="negativas">Menciones negativas / críticas</option>
+      <option value="positivas">Menciones positivas / apoyo</option>
+      <option value="desinformacion">Posible desinformación</option>
+      <option value="noticias">Cobertura periodística</option>
+    </select>
+    <div class="btn-row">
+      <button class="btn btnp" id="btn-b" onclick="buscar()"><i class="ti ti-search"></i> Buscar publicaciones</button>
+    </div>
+    <div class="loading" id="ld-b"><div class="spinner"></div><span id="ld-b-txt">Buscando...</span></div>
+  </div>
+  <div id="posts-wrap" style="display:none">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+      <span style="font-size:13px;color:var(--text3)" id="p-cnt"></span>
+      <select style="width:auto;font-size:12px;padding:6px 10px;" onchange="sortP(this.value)">
+        <option value="fecha">Por fecha</option>
+        <option value="alerta">Por nivel de alerta</option>
+        <option value="sentimiento">Por sentimiento</option>
+      </select>
+    </div>
+    <div id="posts-list"></div>
+  </div>
+  <div id="posts-empty" style="display:none"></div>
+</div>
+
+<!-- HISTORIAL -->
+<div id="historial" class="pane">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+    <div class="pane-title" style="margin:0">Historial de análisis</div>
+    <div class="filters">
+      <select id="h-cand" onchange="renderH()"><option value="">Todos los candidatos</option></select>
+      <select id="h-al" onchange="renderH()">
+        <option value="">Todos los niveles</option>
+        <option value="alto">Alta prioridad</option>
+        <option value="medio">Media</option>
+        <option value="bajo">Baja</option>
+      </select>
+    </div>
+  </div>
+  <div id="h-list"></div>
+</div>
+
+<!-- CANDIDATOS -->
+<div id="cands" class="pane">
+  <div class="pane-title">
+    Candidatos registrados
+    <button class="btn btnp" onclick="openM()"><i class="ti ti-plus"></i> Agregar candidato</button>
+  </div>
+  <div class="cand-grid" id="cgrid"></div>
+</div>
+
+<!-- CONFIG -->
+<div id="config" class="pane">
+  <div class="pane-title">Configuración</div>
+  <div class="sbox">
+    <div class="ct">API Key de Anthropic</div>
+    <div class="lbl">Tu API Key</div>
+    <input type="password" id="api-inp" placeholder="sk-ant-api03-..."/>
+    <div style="font-size:12px;color:var(--text3);margin-top:7px;line-height:1.6;">Tu key se guarda solo en este navegador (localStorage). Nunca se envía a ningún servidor externo excepto a Anthropic directamente.</div>
+    <div class="btn-row">
+      <button class="btn btnp" onclick="saveKey()"><i class="ti ti-check"></i> Guardar key</button>
+      <button class="btn btnd" onclick="clearKey()"><i class="ti ti-trash"></i> Eliminar</button>
+    </div>
+    <div id="key-msg" style="font-size:12px;margin-top:9px;"></div>
+  </div>
+  <div class="sbox">
+    <div class="ct">Cómo obtener tu API Key</div>
+    <div style="font-size:13px;color:var(--text2);line-height:1.8;">
+      1. Ve a <a href="https://console.anthropic.com" target="_blank" style="color:var(--blue)">console.anthropic.com</a><br>
+      2. Crea una cuenta o inicia sesión<br>
+      3. En el menú izquierdo ve a <strong style="color:var(--text)">API Keys</strong><br>
+      4. Haz clic en <strong style="color:var(--text)">Create Key</strong><br>
+      5. Copia la key y pégala arriba<br><br>
+      <span style="color:var(--amber)"><i class="ti ti-alert-triangle"></i> Nunca compartas tu API key en chats ni correos.</span>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="overlay" id="ov">
+  <div class="modal">
+    <div class="mh">Nuevo candidato <button class="mx" onclick="closeM()">✕</button></div>
+    <div class="lbl">Nombre completo</div>
+    <input id="m-name" placeholder="Ej: María García López" style="margin-bottom:10px"/>
+    <div class="lbl">Partido / Movimiento</div>
+    <input id="m-party" placeholder="Ej: Partido Renovación Nacional" style="margin-bottom:10px"/>
+    <div class="lbl">Iniciales (opcional — se generan automáticamente)</div>
+    <input id="m-init" placeholder="Ej: MG" maxlength="2" style="text-transform:uppercase;margin-bottom:10px"/>
+    <div class="lbl">Color del avatar</div>
+    <div class="color-opts" id="color-opts"></div>
+    <div class="btn-row">
+      <button class="btn btnp" onclick="addC()"><i class="ti ti-check"></i> Guardar candidato</button>
+      <button class="btn" onclick="closeM()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var COLORS=[
+  {c:'#5B9BFF',bg:'rgba(91,155,255,0.15)'},{c:'#1FCB8A',bg:'rgba(31,203,138,0.15)'},
+  {c:'#9B7FFF',bg:'rgba(155,127,255,0.15)'},{c:'#FF6EB0',bg:'rgba(255,110,176,0.15)'},
+  {c:'#F5A623',bg:'rgba(245,166,35,0.15)'},{c:'#FF5B5B',bg:'rgba(255,91,91,0.15)'},
+  {c:'#00CFCF',bg:'rgba(0,207,207,0.15)'},{c:'#1FCB8A',bg:'rgba(31,203,138,0.15)'},
+];
+var candidates=[],analyses=[],searches=0,selColor=0,activePlat='todas',currentPosts=[];
+
+function loadState(){
+  try{
+    var c=JSON.parse(localStorage.getItem('mrp_c')||'null');
+    var a=JSON.parse(localStorage.getItem('mrp_a')||'null');
+    var s=parseInt(localStorage.getItem('mrp_s')||'0');
+    candidates=Array.isArray(c)?c:[
+      {n:'Carlos Mendoza',p:'Partido Renovación',av:'CM',c:'#5B9BFF',bg:'rgba(91,155,255,0.15)',pos:42,neg:38,alerts:3},
+      {n:'Ana Sofía Reyes',p:'Alianza Democrática',av:'AR',c:'#1FCB8A',bg:'rgba(31,203,138,0.15)',pos:61,neg:22,alerts:1},
+      {n:'Jorge Villanueva',p:'Movimiento Social',av:'JV',c:'#9B7FFF',bg:'rgba(155,127,255,0.15)',pos:55,neg:28,alerts:0},
+      {n:'María Luisa Torres',p:'Frente Ciudadano',av:'MT',c:'#FF6EB0',bg:'rgba(255,110,176,0.15)',pos:48,neg:31,alerts:2},
+      {n:'Roberto Chávez',p:'Unión Nacional',av:'RC',c:'#F5A623',bg:'rgba(245,166,35,0.15)',pos:37,neg:45,alerts:1},
+    ];
+    analyses=Array.isArray(a)?a:[];
+    searches=isNaN(s)?0:s;
+  }catch(e){candidates=[];analyses=[];searches=0;}
+}
+function save(){
+  try{
+    localStorage.setItem('mrp_c',JSON.stringify(candidates));
+    localStorage.setItem('mrp_a',JSON.stringify(analyses));
+    localStorage.setItem('mrp_s',''+searches);
+  }catch(e){}
+}
+
+function getKey(){return localStorage.getItem('mrp_key')||'';}
+function saveKey(){
+  var k=document.getElementById('api-inp').value.trim();
+  if(!k.startsWith('sk-ant')){document.getElementById('key-msg').innerHTML='<span style="color:var(--red)">La key debe empezar con sk-ant...</span>';return;}
+  localStorage.setItem('mrp_key',k);
+  document.getElementById('key-msg').innerHTML='<span style="color:#3B6D11">✓ API Key guardada correctamente.</span>';
+  renderBanner();
+}
+function clearKey(){
+  localStorage.removeItem('mrp_key');
+  document.getElementById('api-inp').value='';
+  document.getElementById('key-msg').innerHTML='<span style="color:var(--amber)">Key eliminada.</span>';
+  renderBanner();
+}
+function renderBanner(){
+  var k=getKey();
+  var el=document.getElementById('kbanner');
+  if(k){
+    el.innerHTML='<div class="kbanner kb-ok" style="max-width:1100px;margin:0 auto;width:100%;"><i class="ti ti-lock"></i> API Key configurada — portal listo para usar.</div>';
+  } else {
+    el.innerHTML='<div class="kbanner kb-warn" style="max-width:1100px;margin:0 auto;width:100%;"><i class="ti ti-alert-triangle"></i> Sin API Key. Ve a <strong>Configuración</strong> (engranaje) para agregar tu key.</div>';
+  }
+  var inp=document.getElementById('api-inp');
+  if(inp&&k) inp.value=k;
+}
+
+function go(id){
+  document.querySelectorAll('.nb').forEach(function(b,i){b.classList.toggle('active',['dash','buscar','historial','cands','config'][i]===id);});
+  document.querySelectorAll('.pane').forEach(function(p){p.classList.remove('on');});
+  document.getElementById(id).classList.add('on');
+  if(id==='dash') renderDash();
+  if(id==='cands') renderCgrid();
+  if(id==='historial'){fillHCand();renderH();}
+  if(id==='buscar') fillSCand();
+}
+
+function sp(val,key){
+  activePlat=val;
+  ['all','x','tt','fb'].forEach(function(k){var e=document.getElementById('pl-'+k);if(e)e.className='pill';});
+  var cls={all:'sall',x:'sx',tt:'stt',fb:'sfb'};
+  var el=document.getElementById('pl-'+key);
+  if(el) el.className='pill '+(cls[key]||'');
+}
+
+function ptag(p){return /X|Twitter/.test(p)?'px':/TikTok/.test(p)?'ptt':/Facebook/.test(p)?'pfb':'pnews';}
+function fmtN(n){if(!n)return'0';if(n>=1000000)return(n/1000000).toFixed(1)+'M';if(n>=1000)return(n/1000).toFixed(1)+'K';return''+n;}
+function fmtD(d){try{var dt=new Date((d||'')+'T12:00');return dt.toLocaleDateString('es',{day:'2-digit',month:'short',year:'numeric'});}catch(e){return d||'';}}
+
+function openM(){
+  ['m-name','m-party','m-init'].forEach(function(id){document.getElementById(id).value='';});
+  selColor=candidates.length%COLORS.length;
+  renderColors();
+  document.getElementById('ov').classList.add('show');
+  setTimeout(function(){document.getElementById('m-name').focus();},100);
+}
+function closeM(){document.getElementById('ov').classList.remove('show');}
+function renderColors(){
+  document.getElementById('color-opts').innerHTML=COLORS.map(function(col,i){
+    return '<div class="color-opt'+(i===selColor?' sel':'')+'" style="background:'+col.c+'" onclick="pickC('+i+')"></div>';
+  }).join('');
+}
+function pickC(i){selColor=i;renderColors();}
+function addC(){
+  var name=document.getElementById('m-name').value.trim();
+  var party=document.getElementById('m-party').value.trim();
+  var init=document.getElementById('m-init').value.trim().toUpperCase();
+  if(!name){alert('Ingresa el nombre.');return;}
+  if(!party){alert('Ingresa el partido.');return;}
+  if(!init){var p=name.split(' ');init=p.length>=2?(p[0][0]+p[1][0]).toUpperCase():name.slice(0,2).toUpperCase();}
+  candidates.push({n:name,p:party,av:init,c:COLORS[selColor].c,bg:COLORS[selColor].bg,pos:50,neg:20,alerts:0});
+  save();closeM();renderCgrid();fillSCand();renderDash();
+}
+function removeC(i){
+  if(!confirm('¿Eliminar a "'+candidates[i].n+'"?'))return;
+  candidates.splice(i,1);save();renderCgrid();fillSCand();renderDash();
+}
+function fillSCand(){
+  var sel=document.getElementById('s-cand'),cur=sel.value;
+  sel.innerHTML='<option value="">— Seleccionar candidato —</option>'+candidates.map(function(c){return'<option value="'+c.n+'">'+c.n+'</option>';}).join('');
+  if(cur)sel.value=cur;
+}
+function fillHCand(){
+  document.getElementById('h-cand').innerHTML='<option value="">Todos los candidatos</option>'+candidates.map(function(c){return'<option value="'+c.n+'">'+c.n+'</option>';}).join('');
+}
+
+async function callAPI(messages,useSearch){
+  var key=getKey();
+  if(!key) throw new Error('Sin API Key. Ve a Configuración (engranaje).');
+  var body={model:'claude-sonnet-4-20250514',max_tokens:4000,messages:messages};
+  if(useSearch) body.tools=[{type:'web_search_20250305',name:'web_search'}];
+  var res=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    body:JSON.stringify(body)
+  });
+  if(!res.ok){var e=await res.json().catch(function(){return{};});throw new Error((e.error&&e.error.message)||'Error HTTP '+res.status);}
+  return res.json();
+}
+
+async function buscar(){
+  var cand=document.getElementById('s-cand').value;
+  var tipo=document.getElementById('s-tipo').value;
+  if(!cand){alert('Por favor selecciona un candidato.');return;}
+  if(!getKey()){alert('Configura tu API Key primero. Ve a Configuración (engranaje).');return;}
+  var btn=document.getElementById('btn-b');
+  btn.disabled=true;
+  document.getElementById('ld-b').style.display='flex';
+  document.getElementById('posts-wrap').style.display='none';
+  document.getElementById('posts-empty').style.display='none';
+  var platStr=activePlat==='todas'?'X Twitter TikTok Facebook':activePlat;
+  var tipoStr={recientes:'publicaciones y noticias recientes',negativas:'críticas ataques escándalos negativos',positivas:'apoyo logros menciones positivas',desinformacion:'desinformación noticias falsas rumores',noticias:'noticias periodísticas cobertura de medios'}[tipo]||'publicaciones';
+  document.getElementById('ld-b-txt').textContent='Buscando sobre '+cand+'...';
+  var hoy=new Date().toISOString().slice(0,10);
+  var prompt='Eres un monitor de redes sociales. Busca publicaciones y noticias REALES y recientes sobre el candidato político "'+cand+'" en '+platStr+'.\nBusca: '+tipoStr+'\nHoy: '+hoy+'\nUsa búsqueda web. Incluye el texto real. Ordena por fecha más reciente.\nDevuelve ÚNICAMENTE un array JSON con 6 a 8 resultados sin backticks ni texto adicional:\n[{"plataforma":"X (Twitter)","autor":"@usuario","fecha":"'+hoy+'","hora":"14:30","contenido":"texto completo de la publicación","url":"https://enlace.com","likes":1200,"compartidos":340,"sentimiento":"Negativo","nivel_alerta":"medio","tipo_contenido":"crítica"}]\nValores: plataforma: X (Twitter)|TikTok|Facebook|Noticias. sentimiento: Positivo|Negativo|Neutral. nivel_alerta: bajo|medio|alto. tipo_contenido: opinión|noticia|ataque|desinformación|apoyo|crítica|viral.';
+  try{
+    var data=await callAPI([{role:'user',content:prompt}],true);
+    var text=data.content.filter(function(b){return b.type==='text';}).map(function(b){return b.text;}).join('');
+    var m=text.match(/\[[\s\S]*\]/);
+    if(!m) throw new Error('No se encontraron publicaciones');
+    var posts=JSON.parse(m[0]);
+    if(!Array.isArray(posts)||posts.length===0) throw new Error('Sin resultados');
+    searches++;save();
+    currentPosts=posts.map(function(p,i){return Object.assign({},p,{id:i,analyzed:false,analysis:null});});
+    renderPosts();
+    document.getElementById('posts-wrap').style.display='block';
+    renderDash();
+  }catch(e){
+    document.getElementById('posts-empty').style.display='block';
+    document.getElementById('posts-empty').innerHTML='<div class="empty"><i class="ti ti-alert-circle" style="font-size:30px;margin-bottom:8px;display:block"></i>'+e.message+'</div>';
+  }
+  btn.disabled=false;
+  document.getElementById('ld-b').style.display='none';
+}
+
+function sortP(by){
+  if(by==='fecha')currentPosts.sort(function(a,b){return new Date((b.fecha||'')+'T12:00')-new Date((a.fecha||'')+'T12:00');});
+  if(by==='alerta'){var o={alto:2,medio:1,bajo:0};currentPosts.sort(function(a,b){return(o[b.nivel_alerta]||0)-(o[a.nivel_alerta]||0);});}
+  if(by==='sentimiento'){var o2={Negativo:2,Neutral:1,Positivo:0};currentPosts.sort(function(a,b){return(o2[a.sentimiento]||0)-(o2[b.sentimiento]||0);});}
+  renderPosts();
+}
+
+function renderPosts(){
+  document.getElementById('p-cnt').textContent=currentPosts.length+' publicaciones encontradas';
+  document.getElementById('posts-list').innerHTML=currentPosts.map(function(p){
+    var cs=p.sentimiento==='Positivo'?'bp':p.sentimiento==='Negativo'?'bn':'bu';
+    var ca=p.nivel_alerta==='alto'?'bn':p.nivel_alerta==='medio'?'bw':'bp';
+    var ptcls=ptag(p.plataforma);
+    var anHtml='';
+    if(p.analyzed&&p.analysis){
+      var r=p.analysis;
+      var acs=r.sentimiento==='Positivo'?'bp':r.sentimiento==='Negativo'?'bn':'bu';
+      var aca=r.nivel_alerta==='alto'?'bn':r.nivel_alerta==='medio'?'bw':'bp';
+      anHtml='<div class="pan-row"><span class="badge '+acs+'">'+r.sentimiento+' '+r.puntaje+'/10</span><span class="badge '+aca+'">'+r.nivel_alerta.toUpperCase()+'</span>'+(r.contenido_danino?'<span class="badge bn">⚠ '+r.tipo_dano+'</span>':'')+'</div><div class="pan-text">'+r.resumen+'</div><div class="pan-act">💡 '+r.accion+'</div>';
+    }
+    return '<div class="post-card">'+
+      '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;flex-wrap:wrap">'+
+      '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">'+
+      '<span class="pt '+ptcls+'">'+p.plataforma+'</span>'+
+      '<span style="font-size:12px;font-weight:600;color:var(--text2)">'+(p.autor||'')+'</span>'+
+      '<span style="font-size:11px;color:var(--text3)">'+fmtD(p.fecha)+'</span></div>'+
+      '<div style="display:flex;gap:4px;flex-shrink:0">'+
+      '<span class="badge '+cs+'">'+p.sentimiento+'</span>'+
+      '<span class="badge '+ca+'">'+(p.nivel_alerta||'')+'</span>'+
+      (p.tipo_contenido?'<span class="badge bu">'+p.tipo_contenido+'</span>':'')+
+      '</div></div>'+
+      '<div class="post-body">'+p.contenido+
+      (p.url&&p.url!=='null'?'<br><a href="'+p.url+'" target="_blank" rel="noopener">Ver publicación <i class="ti ti-external-link" style="font-size:12px"></i></a>':'')+
+      '</div>'+
+      '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">'+
+      (p.likes?'<span style="font-size:12px;color:var(--text3)"><i class="ti ti-heart" style="font-size:12px"></i> '+fmtN(p.likes)+'</span>':'')+
+      (p.compartidos?'<span style="font-size:12px;color:var(--text3)"><i class="ti ti-repeat" style="font-size:12px"></i> '+fmtN(p.compartidos)+'</span>':'')+
+      '<button class="btn-ap'+(p.analyzed?' done':'')+'" id="bap-'+p.id+'" onclick="analyzePost('+p.id+')">'+(p.analyzed?'✓ Analizado':'Analizar con IA')+'</button>'+
+      '</div>'+
+      '<div class="pan'+(p.analyzed&&p.analysis?' show':'')+'" id="an-'+p.id+'">'+anHtml+'</div>'+
+      '</div>';
+  }).join('');
+}
+
+async function analyzePost(id){
+  var post=null;
+  for(var i=0;i<currentPosts.length;i++){if(currentPosts[i].id===id){post=currentPosts[i];break;}}
+  if(!post)return;
+  var btn=document.getElementById('bap-'+id);
+  btn.textContent='Analizando...';btn.disabled=true;
+  var prompt='Analiza esta publicación de '+post.plataforma+' para monitoreo de reputación política.\nContenido: "'+post.contenido+'"\nDevuelve ÚNICAMENTE este JSON sin backticks:\n{"sentimiento":"Positivo","puntaje":7,"contenido_danino":false,"tipo_dano":"ninguno","nivel_alerta":"bajo","resumen":"análisis en 1-2 oraciones","accion":"acción recomendada"}\nsentimiento: Positivo|Negativo|Neutral. nivel_alerta: bajo|medio|alto. tipo_dano: ninguno|desinformación|ataque personal|discurso de odio|manipulación|sátira negativa|otro.';
+  try{
+    var data=await callAPI([{role:'user',content:prompt}],false);
+    var text=data.content.filter(function(b){return b.type==='text';}).map(function(b){return b.text;}).join('');
+    var m=text.match(/\{[\s\S]*?\}/);
+    if(!m)throw new Error('Sin respuesta');
+    var r=JSON.parse(m[0]);
+    post.analyzed=true;post.analysis=r;
+    var candName=document.getElementById('s-cand').value;
+    analyses.unshift({ts:Date.now(),cand:candName,plat:post.plataforma,url:post.url||null,sentimiento:r.sentimiento,puntaje:r.puntaje,contenido_danino:r.contenido_danino,tipo_dano:r.tipo_dano,nivel_alerta:r.nivel_alerta,resumen:r.resumen,accion:r.accion,contenido:post.contenido.slice(0,140)});
+    if(analyses.length>300)analyses.pop();
+    save();
+    var cs=r.sentimiento==='Positivo'?'bp':r.sentimiento==='Negativo'?'bn':'bu';
+    var ca=r.nivel_alerta==='alto'?'bn':r.nivel_alerta==='medio'?'bw':'bp';
+    var div=document.getElementById('an-'+id);
+    div.innerHTML='<div class="pan-row"><span class="badge '+cs+'">'+r.sentimiento+' '+r.puntaje+'/10</span><span class="badge '+ca+'">'+r.nivel_alerta.toUpperCase()+'</span>'+(r.contenido_danino?'<span class="badge bn">⚠ '+r.tipo_dano+'</span>':'')+'</div><div class="pan-text">'+r.resumen+'</div><div class="pan-act">💡 '+r.accion+'</div>';
+    div.classList.add('show');
+    btn.textContent='✓ Analizado';btn.classList.add('done');
+    renderDash();
+  }catch(e){btn.textContent='Error — reintentar';btn.disabled=false;}
+}
+
+function renderDash(){
+  document.getElementById('m-c').textContent=candidates.length;
+  var al=analyses.filter(function(a){return a.nivel_alerta==='alto';}).length;
+  candidates.forEach(function(c){al+=(c.alerts||0);});
+  document.getElementById('m-al').textContent=al;
+  document.getElementById('m-al-s').textContent=al>0?al+' alta prioridad':'sin alertas';
+  var posAvg=candidates.length>0?Math.round(candidates.reduce(function(s,c){return s+(c.pos||50);},0)/candidates.length):54;
+  document.getElementById('m-pos').textContent=posAvg+'%';
+  var pub=Math.max(1284,analyses.length*18);
+  document.getElementById('m-pub').textContent=pub.toLocaleString();
+
+  document.getElementById('d-sent').innerHTML=candidates.length===0
+    ?'<div class="empty" style="padding:16px 0">Ve a Candidatos para agregar.</div>'
+    :candidates.map(function(c){
+      var cs=(c.pos||50)>50?'bp':(c.neg||30)>40?'bn':'bw';
+      return '<div class="crow">'+
+        '<div class="av" style="width:32px;height:32px;font-size:11px;background:'+c.bg+';color:'+c.c+'">'+c.av+'</div>'+
+        '<div style="flex:1"><div style="font-size:13px;font-weight:500;color:var(--text)">'+c.n+'</div>'+
+        '<div style="font-size:11px;color:var(--text3)">'+c.p+'</div></div>'+
+        '<div style="text-align:right">'+
+        '<span class="badge '+cs+'">'+(c.pos||50)+'% pos</span>'+
+        ((c.alerts&&c.alerts>0)?'<div style="font-size:11px;color:var(--red);margin-top:2px">'+c.alerts+' alerta'+(c.alerts>1?'s':'')+'</div>':'')+
+        '</div></div>';
+    }).join('');
+
+  var recentAlerts=analyses.filter(function(a){return a.nivel_alerta==='alto';}).slice(0,3);
+  var defaultAlerts=[
+    {lv:'a-h',cn:'Carlos Mendoza',tx:'Campaña de desinformación detectada',plat:'X (Twitter)',t:'hace 23 min',ptcls:'px'},
+    {lv:'a-m',cn:'Ana Sofía Reyes',tx:'Video con edición manipulada en circulación',plat:'TikTok',t:'hace 1h',ptcls:'ptt'},
+    {lv:'a-l',cn:'Jorge Villanueva',tx:'Pico de menciones positivas detectado',plat:'X (Twitter)',t:'hace 2h',ptcls:'px'},
+  ];
+  if(recentAlerts.length>0){
+    document.getElementById('d-alerts').innerHTML=recentAlerts.map(function(a){
+      var lv=a.nivel_alerta==='alto'?'a-h':a.nivel_alerta==='medio'?'a-m':'a-l';
+      var ptcls=ptag(a.plat);
+      var t=new Date(a.ts);
+      return '<div class="ai '+lv+'"><div style="flex-shrink:0;margin-top:1px"><i class="ti ti-flag" style="font-size:13px"></i></div>'+
+        '<div><div class="at"><strong>'+a.cand+'</strong> — '+a.contenido+'</div>'+
+        '<div class="am"><span class="pt '+ptcls+'">'+a.plat+'</span>'+t.toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'})+'</div></div></div>';
+    }).join('');
+  } else {
+    document.getElementById('d-alerts').innerHTML=defaultAlerts.map(function(a){
+      return '<div class="ai '+a.lv+'"><div style="flex-shrink:0;margin-top:1px"><i class="ti ti-flag" style="font-size:13px"></i></div>'+
+        '<div><div class="at"><strong>'+a.cn+'</strong> — '+a.tx+'</div>'+
+        '<div class="am"><span class="pt '+a.ptcls+'">'+a.plat+'</span>'+a.t+'</div></div></div>';
+    }).join('');
+  }
+
+  var tcolors=['#5B9BFF','#1FCB8A','#9B7FFF','#FF6EB0','#F5A623'];
+  document.getElementById('d-trends').innerHTML=candidates.slice(0,5).map(function(c,ci){
+    var vals=Array.from({length:7},function(_,i){return 20+Math.round(Math.sin(i*0.9+(c.pos||50)*0.12)*14+Math.random()*10);});
+    var mx=Math.max.apply(null,vals),mn=Math.min.apply(null,vals);
+    var pts=vals.map(function(v,i){return(i*16)+','+(28-Math.round((v-mn)/(mx-mn||1)*24));}).join(' ');
+    var nm=c.n.split(' ');
+    return '<div class="trow">'+
+      '<div style="width:110px;font-size:13px;font-weight:500;color:var(--text)">'+nm[0]+' '+(nm[1]?nm[1][0]+'.':'')+'</div>'+
+      '<svg style="flex:1;height:30px" viewBox="0 0 96 30">'+
+      '<defs><linearGradient id="tg'+ci+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="'+tcolors[ci%5]+'" stop-opacity=".2"/><stop offset="100%" stop-color="'+tcolors[ci%5]+'" stop-opacity="0"/></linearGradient></defs>'+
+      '<polygon points="'+pts+' 96,30 0,30" fill="url(#tg'+ci+')"/>'+
+      '<polyline points="'+pts+'" fill="none" stroke="'+tcolors[ci%5]+'" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>'+
+      '</svg>'+
+      '<div style="font-size:12px;color:var(--text3);width:60px;text-align:right">'+(vals[6]*Math.round(Math.random()*5+8)).toLocaleString()+' hoy</div></div>';
+  }).join('');
+}
+
+function renderH(){
+  var fc=document.getElementById('h-cand').value,fa=document.getElementById('h-al').value;
+  var filtered=analyses.filter(function(a){return(!fc||a.cand===fc)&&(!fa||a.nivel_alerta===fa);});
+  var el=document.getElementById('h-list');
+  if(filtered.length===0){el.innerHTML='<div class="empty"><i class="ti ti-clipboard-list" style="font-size:30px;margin-bottom:10px;display:block"></i>No hay análisis que mostrar.</div>';return;}
+  el.innerHTML=filtered.map(function(a){
+    var cs=a.sentimiento==='Positivo'?'bp':a.sentimiento==='Negativo'?'bn':'bu';
+    var ca=a.nivel_alerta==='alto'?'bn':a.nivel_alerta==='medio'?'bw':'bp';
+    var ptcls=ptag(a.plat);
+    var t=new Date(a.ts);
+    var ds=t.toLocaleDateString('es',{day:'2-digit',month:'short'})+' '+t.toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'});
+    return '<div class="h-item">'+
+      '<div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:9px;flex-wrap:wrap">'+
+      '<div style="flex:1"><div style="font-size:14px;font-weight:600;color:var(--text)">'+a.cand+'</div>'+
+      '<div style="font-size:11px;color:var(--text3);margin-top:3px;display:flex;gap:6px;align-items:center;flex-wrap:wrap">'+
+      '<span class="pt '+ptcls+'">'+a.plat+'</span>'+ds+'</div></div>'+
+      '<div style="display:flex;gap:4px;flex-wrap:wrap">'+
+      '<span class="badge '+cs+'">'+a.sentimiento+' '+a.puntaje+'/10</span>'+
+      '<span class="badge '+ca+'">'+a.nivel_alerta.toUpperCase()+'</span>'+
+      (a.contenido_danino?'<span class="badge bn">⚠ '+a.tipo_dano+'</span>':'')+
+      '</div></div>'+
+      (a.contenido?'<div style="font-size:12px;color:var(--text2);font-style:italic;margin-bottom:8px;padding:8px 10px;background:var(--bg3);border-radius:7px">"'+a.contenido+'"</div>':'')+
+      '<div style="font-size:13px;color:var(--text2);line-height:1.5;margin-bottom:5px">'+a.resumen+'</div>'+
+      '<div style="font-size:12px;color:var(--text3)">💡 '+a.accion+'</div></div>';
+  }).join('');
+}
+
+function renderCgrid(){
+  var el=document.getElementById('cgrid');
+  if(candidates.length===0){el.innerHTML='<div class="empty" style="grid-column:1/-1">No hay candidatos registrados aún.</div>';return;}
+  el.innerHTML=candidates.map(function(c,i){
+    var cnt=analyses.filter(function(a){return a.cand===c.n;}).length;
+    return '<div class="cand-card">'+
+      '<div class="av" style="width:44px;height:44px;font-size:14px;background:'+c.bg+';color:'+c.c+';flex-shrink:0">'+c.av+'</div>'+
+      '<div style="flex:1">'+
+      '<div style="font-size:15px;font-weight:600;color:var(--text)">'+c.n+'</div>'+
+      '<div style="font-size:12px;color:var(--text3);margin-top:2px">'+c.p+'</div>'+
+      '<div style="margin-top:7px;display:flex;gap:5px;flex-wrap:wrap">'+
+      '<span class="badge bp">'+(c.pos||50)+'% pos</span>'+
+      '<span class="badge bu">'+cnt+' análisis</span>'+
+      ((c.alerts&&c.alerts>0)?'<span class="badge bn">'+c.alerts+' alerta'+(c.alerts>1?'s':'')+'</span>':'')+
+      '</div></div>'+
+      '<button class="btn btnd" style="font-size:12px;padding:6px 11px;flex-shrink:0" onclick="removeC('+i+')" title="Eliminar">'+
+      '<i class="ti ti-trash"></i></button></div>';
+  }).join('');
+}
+
+loadState();fillSCand();fillHCand();renderDash();renderCgrid();renderBanner();
+document.getElementById('ov').addEventListener('click',function(e){if(e.target===this)closeM();});
+</script>
+</body>
+</html>
